@@ -1,10 +1,285 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <title>外語學習實體書販賣網站：專案核心說明</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; margin: 20px; color: #333; }
+    h1 { color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+    h2 { color: #333; margin-top: 30px; border-left: 5px solid #ffc107; padding-left: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+    th { background-color: #f2f2f2; color: #333; }
+    .highlight { font-weight: bold; color: #d9534f; }
+    .citation { font-size: 0.9em; color: #888; margin-top: 5px;}
+  </style>
 </head>
 <body>
-$END$
+
+<h1>外語學習實體書販賣網站：專案核心說明</h1>
+<p>
+  <strong>專案名稱：</strong>外語學習實體書販賣網站<br>
+  <strong>開發者：</strong>周彥廷 D1397102<br>
+  <strong>核心技術棧：</strong>Vue 3 + Spring Boot + Supabase
+</p>
+
+<hr>
+
+<h2>一、 開發框架與技術棧 (Development Stack)</h2>
+<p>技術棧選用被定位為「單人開發最強組合」。</p>
+
+<table>
+  <thead>
+  <tr>
+    <th>技術組成</th>
+    <th>核心優勢與功能</th>
+    <th>架構定位與資料流</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><strong>前端 (Vue 3 + Vite)</strong></td>
+    <td>組件化、開發快速 。使用 Pinia 進行狀態管理。</td>
+    <td>瀏覽器 (RWD) 端，透過 Axios 發送請求。預計部署至 GitHub Pages。</td>
+  </tr>
+  <tr>
+    <td><strong>後端 (Spring Boot 3)</strong></td>
+    <td>企業級後端、內建 Security + JPA。</td>
+    <td>處理 REST Controllers；包含 JWT Filter 進行安全驗證。資料經 Spring Data JPA 存取資料庫。預計部署至 GitHub Pages。</td>
+  </tr>
+  <tr>
+    <td><strong>資料庫/服務 (Supabase PostgreSQL)</strong></td>
+    <td>免伺服器 PostgreSQL，免費 500MB 足夠專案使用。內建 Auth 身份驗證。</td>
+    <td>提供底層資料儲存；處理用戶登入(使用者 → 登入 → Supabase Auth → JWT)。</td>
+  </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>二、 前台功能 (Frontend Features)</h2>
+
+<table>
+  <thead>
+  <tr>
+    <th>功能模組</th>
+    <th>功能細項</th>
+    <th>實作細節與來源依據</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><strong>會員功能</strong></td>
+    <td>註冊、登入、修改、刪除</td>
+    <td>登入透過 Supabase Auth 處理，JWT 放置在 Header 中供 Spring Boot 驗證。</td>
+  </tr>
+  <tr>
+    <td rowspan="2"><strong>書籍查詢</strong></td>
+    <td>依關鍵字查詢</td>
+    <td>透過 Figma 原型中上方的搜尋欄位實現。</td>
+  </tr>
+  <tr>
+    <td><span class="highlight">按照書本分類查詢</span></td>
+    <td>利用動態內容切換技術，透過語言按鈕 (English, 日本語, Français, Deutsch, Español 等) 篩選。依賴 <code>books</code> 表的 <code>lang</code> 欄位。</td>
+  </tr>
+  <tr>
+    <td rowspan="2"><strong>購物與結帳</strong></td>
+    <td>購物車</td>
+    <td>使用 <code>cart_items</code> 表格；Figma 原型展示了商品清單與小計。</td>
+  </tr>
+  <tr>
+    <td>結帳流程</td>
+    <td>分為 1. 資訊 (姓名、地址)、2. 運送、3. 訂單 三步驟。付款方式支援信用卡或貨到付款。</td>
+  </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>三、 詳細資料庫設計結構 (Supabase PostgreSQL)</h2>
+<p>所有表格的資料型態為建議值，以確保功能完整性。</p>
+
+<table>
+  <thead>
+  <tr>
+    <th>表格名稱 (Table Name)</th>
+    <th>欄位名稱 (Column)</th>
+    <th>資料型別 (Data Type)</th>
+    <th>備註 (Description)</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td rowspan="7"><strong>users</strong> (會員)</td>
+    <td>user_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>username</td>
+    <td>VARCHAR(50)</td>
+    <td>會員帳號/暱稱，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>email</td>
+    <td>VARCHAR(100)</td>
+    <td>會員信箱，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>password_hash</td>
+    <td>TEXT</td>
+    <td>Spring Security 加密後的密碼 (e.g., Bcrypt)。</td>
+  </tr>
+  <tr>
+    <td>role</td>
+    <td>VARCHAR(20)</td>
+    <td>角色：MEMBER (會員) 或 ADMIN (管理員)。</td>
+  </tr>
+  <tr>
+    <td>created_at</td>
+    <td>TIMESTAMP WITH TIME ZONE</td>
+    <td>註冊時間。</td>
+  </tr>
+  <tr>
+    <td>is_active</td>
+    <td>BOOLEAN</td>
+    <td>會員是否啟用 (用於刪除/停用帳號)。</td>
+  </tr>
+  <tr>
+    <td rowspan="3"><strong>categories</strong> (書籍分類)</td>
+    <td>category_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>name_zh</td>
+    <td>VARCHAR(50)</td>
+    <td>分類名稱 (中文，e.g., '日語', '英語')，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>slug</td>
+    <td>VARCHAR(50)</td>
+    <td>網址用標籤 (e.g., 'japanese', 'english')。</td>
+  </tr>
+  <tr>
+    <td rowspan="11"><strong>books</strong> (書籍資訊)</td>
+    <td>book_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>title</td>
+    <td>VARCHAR(255)</td>
+    <td>書籍名稱。</td>
+  </tr>
+  <tr>
+    <td>author</td>
+    <td>VARCHAR(100)</td>
+    <td>作者。</td>
+  </tr>
+  <tr>
+    <td>isbn</td>
+    <td>VARCHAR(20)</td>
+    <td>國際標準書號，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>price</td>
+    <td>NUMERIC(10, 2)</td>
+    <td>價格 (可保留兩位小數)。</td>
+  </tr>
+  <tr>
+    <td>stock</td>
+    <td>INTEGER</td>
+    <td>庫存量。</td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>TEXT</td>
+    <td>簡介。</td>
+  </tr>
+  <tr>
+    <td>category_id</td>
+    <td>INTEGER (FK)</td>
+    <td>外鍵，連結到 categories.category_id (分類查詢依據)。</td>
+  </tr>
+  <tr>
+    <td>image_url</td>
+    <td>TEXT</td>
+    <td>書籍封面圖片網址 (可指向 Supabase Storage)。</td>
+  </tr>
+  <tr>
+    <td>is_onsale</td>
+    <td>BOOLEAN</td>
+    <td>上架/下架狀態 (上架: TRUE, 下架: FALSE)。</td>
+  </tr>
+  <tr>
+    <td>published_date</td>
+    <td>DATE</td>
+    <td>出版日期。</td>
+  </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>四、 後台管理功能 (Backend Admin Features)</h2>
+<p>後台介面設計已包含「書本」、「訂單」、「會員」導航模組，所有操作需經 Spring Security + JWT Filter 驗證。</p>
+
+<table>
+  <thead>
+  <tr>
+    <th>模組</th>
+    <th>功能名稱</th>
+    <th>具體描述 (依據來源與規劃)</th>
+    <th>來源依據</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td rowspan="4"><strong>書籍管理</strong></td>
+    <td>書籍列表瀏覽與狀態監控</td>
+    <td>顯示書名、價格、以及書籍的**狀態** (例如：「已上架」)。</td>
+    <td>Figma 原型「後台書本管理」</td>
+  </tr>
+  <tr>
+    <td>新增書籍 (Create)</td>
+    <td>提供表單，允許管理員填入書名、價格、語言、描述等資料。</td>
+    <td>Figma 原型「新增書本」</td>
+  </tr>
+  <tr>
+    <td>修改書籍資訊 (Update)</td>
+    <td>允許管理員編輯現有書籍的詳細資料。</td>
+    <td>Figma 原型「後台書本管理」</td>
+  </tr>
+  <tr>
+    <td><span class="highlight">**上架與下架控制**</span></td>
+    <td>透過修改書籍的 <span class="highlight"><code>status</code></span> 欄位來控制商品在前台的顯示與否 [Figma原型展示「狀態」]。</td>
+    <td>專案核心需求 (管理書籍含上架下架) [user query]</td>
+  </tr>
+  <tr>
+    <td rowspan="2"><strong>訂單管理</strong></td>
+    <td>訂單清單瀏覽</td>
+    <td>檢視所有顧客的歷史訂單紀錄，追蹤訂單狀態。</td>
+    <td>Figma 原型側邊導航「訂單」</td>
+  </tr>
+  <tr>
+    <td>訂單狀態更新</td>
+    <td>管理員手動更新訂單處理進度 (例如：已出貨)，支持電商管理流程。</td>
+    <td>Figma 原型側邊導航「訂單」</td>
+  </tr>
+  <tr>
+    <td rowspan="2"><strong>會員管理</strong></td>
+    <td>會員清單瀏覽</td>
+    <td>檢視所有由 Supabase Auth 註冊的會員基本資料。</td>
+    <td>Figma 原型側邊導航「會員」</td>
+  </tr>
+  <tr>
+    <td>會員資訊查詢</td>
+    <td>允許管理員針對特定用戶進行查詢。</td>
+    <td>會員管理邏輯需求</td>
+  </tr>
+  </tbody>
+</table>
+
 </body>
 </html>
