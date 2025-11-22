@@ -56,8 +56,143 @@
 </table>
 
 <hr>
+<h2>三、 詳細資料庫設計結構 (Supabase PostgreSQL)</h2>
+<p>所有表格的資料型態為建議值，以確保功能完整性。</p>
 
-<h2>二、 前台功能 (Frontend Features)</h2>
+<table>
+  <thead>
+  <tr>
+    <th>表格名稱 (Table Name)</th>
+    <th>欄位名稱 (Column)</th>
+    <th>資料型別 (Data Type)</th>
+    <th>備註 (Description)</th>
+  </tr>
+  </thead>
+  <tbody>
+
+  <!-- USERS -->
+  <tr>
+    <td rowspan="7"><strong>users</strong> (會員)</td>
+    <td>user_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>username</td>
+    <td>VARCHAR(50)</td>
+    <td>會員帳號/暱稱，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>email</td>
+    <td>VARCHAR(100)</td>
+    <td>會員信箱，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>password_hash</td>
+    <td>TEXT</td>
+    <td>Spring Security 加密後的密碼 (Bcrypt)。</td>
+  </tr>
+  <tr>
+    <td>role</td>
+    <td>VARCHAR(20)</td>
+    <td>角色：MEMBER 或 ADMIN。</td>
+  </tr>
+  <tr>
+    <td>created_at</td>
+    <td>TIMESTAMP WITH TIME ZONE</td>
+    <td>註冊時間。</td>
+  </tr>
+  <tr>
+    <td>is_active</td>
+    <td>BOOLEAN</td>
+    <td>會員是否啟用／停用帳號。</td>
+  </tr>
+
+  <!-- CATEGORIES -->
+  <tr>
+    <td rowspan="3"><strong>categories</strong> (書籍類型)</td>
+    <td>category_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>name_zh</td>
+    <td>VARCHAR(50)</td>
+    <td>分類名稱 (中文，例如：文法、單字、會話)，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>slug</td>
+    <td>VARCHAR(50)</td>
+    <td>網址用標籤 (如 grammar, vocab, reading)。</td>
+  </tr>
+
+  <!-- BOOKS -->
+  <tr>
+    <td rowspan="12"><strong>books</strong> (書籍資訊)</td>
+    <td>book_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>title</td>
+    <td>VARCHAR(255)</td>
+    <td>書籍名稱。</td>
+  </tr>
+  <tr>
+    <td>author</td>
+    <td>VARCHAR(100)</td>
+    <td>作者。</td>
+  </tr>
+  <tr>
+    <td>isbn</td>
+    <td>VARCHAR(20)</td>
+    <td>國際標準書號，UNIQUE。</td>
+  </tr>
+  <tr>
+    <td>price</td>
+    <td>NUMERIC(10, 2)</td>
+    <td>價格。</td>
+  </tr>
+  <tr>
+    <td>stock</td>
+    <td>INTEGER</td>
+    <td>庫存量。</td>
+  </tr>
+  <tr>
+    <td>description</td>
+    <td>TEXT</td>
+    <td>書籍簡介。</td>
+  </tr>
+  <tr>
+    <td>category_id</td>
+    <td>INTEGER (FK)</td>
+    <td>外鍵，連結 categories.category_id。</td>
+  </tr>
+  <tr>
+    <td>lang</td>
+    <td>VARCHAR(20)</td>
+    <td>學習語言分類，例如：english, japanese, french。</td>
+  </tr>
+  <tr>
+    <td>image_url</td>
+    <td>TEXT</td>
+    <td>封面圖片網址 (Supabase Storage)。</td>
+  </tr>
+  <tr>
+    <td>is_onsale</td>
+    <td>BOOLEAN</td>
+    <td>上架(TRUE) / 下架(FALSE)。</td>
+  </tr>
+  <tr>
+    <td>published_date</td>
+    <td>DATE</td>
+    <td>出版日期。</td>
+  </tr>
+
+  </tbody>
+</table>
+<hr>
+<h2>三、 前台功能 (Frontend Features)</h2>
 
 <table>
   <thead>
@@ -90,132 +225,6 @@
   <tr>
     <td>結帳流程</td>
     <td>分為 1. 資訊 (姓名、地址)、2. 運送、3. 訂單 三步驟。付款方式支援信用卡或貨到付款。</td>
-  </tr>
-  </tbody>
-</table>
-
-<hr>
-
-<h2>三、 詳細資料庫設計結構 (Supabase PostgreSQL)</h2>
-<p>所有表格的資料型態為建議值，以確保功能完整性。</p>
-
-<table>
-  <thead>
-  <tr>
-    <th>表格名稱 (Table Name)</th>
-    <th>欄位名稱 (Column)</th>
-    <th>資料型別 (Data Type)</th>
-    <th>備註 (Description)</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td rowspan="7"><strong>users</strong> (會員)</td>
-    <td>user_id</td>
-    <td>SERIAL (PK)</td>
-    <td>主鍵，自動遞增。</td>
-  </tr>
-  <tr>
-    <td>username</td>
-    <td>VARCHAR(50)</td>
-    <td>會員帳號/暱稱，UNIQUE。</td>
-  </tr>
-  <tr>
-    <td>email</td>
-    <td>VARCHAR(100)</td>
-    <td>會員信箱，UNIQUE。</td>
-  </tr>
-  <tr>
-    <td>password_hash</td>
-    <td>TEXT</td>
-    <td>Spring Security 加密後的密碼 (e.g., Bcrypt)。</td>
-  </tr>
-  <tr>
-    <td>role</td>
-    <td>VARCHAR(20)</td>
-    <td>角色：MEMBER (會員) 或 ADMIN (管理員)。</td>
-  </tr>
-  <tr>
-    <td>created_at</td>
-    <td>TIMESTAMP WITH TIME ZONE</td>
-    <td>註冊時間。</td>
-  </tr>
-  <tr>
-    <td>is_active</td>
-    <td>BOOLEAN</td>
-    <td>會員是否啟用 (用於刪除/停用帳號)。</td>
-  </tr>
-  <tr>
-    <td rowspan="3"><strong>categories</strong> (書籍分類)</td>
-    <td>category_id</td>
-    <td>SERIAL (PK)</td>
-    <td>主鍵，自動遞增。</td>
-  </tr>
-  <tr>
-    <td>name_zh</td>
-    <td>VARCHAR(50)</td>
-    <td>分類名稱 (中文，e.g., '日語', '英語')，UNIQUE。</td>
-  </tr>
-  <tr>
-    <td>slug</td>
-    <td>VARCHAR(50)</td>
-    <td>網址用標籤 (e.g., 'japanese', 'english')。</td>
-  </tr>
-  <tr>
-    <td rowspan="11"><strong>books</strong> (書籍資訊)</td>
-    <td>book_id</td>
-    <td>SERIAL (PK)</td>
-    <td>主鍵，自動遞增。</td>
-  </tr>
-  <tr>
-    <td>title</td>
-    <td>VARCHAR(255)</td>
-    <td>書籍名稱。</td>
-  </tr>
-  <tr>
-    <td>author</td>
-    <td>VARCHAR(100)</td>
-    <td>作者。</td>
-  </tr>
-  <tr>
-    <td>isbn</td>
-    <td>VARCHAR(20)</td>
-    <td>國際標準書號，UNIQUE。</td>
-  </tr>
-  <tr>
-    <td>price</td>
-    <td>NUMERIC(10, 2)</td>
-    <td>價格 (可保留兩位小數)。</td>
-  </tr>
-  <tr>
-    <td>stock</td>
-    <td>INTEGER</td>
-    <td>庫存量。</td>
-  </tr>
-  <tr>
-    <td>description</td>
-    <td>TEXT</td>
-    <td>簡介。</td>
-  </tr>
-  <tr>
-    <td>category_id</td>
-    <td>INTEGER (FK)</td>
-    <td>外鍵，連結到 categories.category_id (分類查詢依據)。</td>
-  </tr>
-  <tr>
-    <td>image_url</td>
-    <td>TEXT</td>
-    <td>書籍封面圖片網址 (可指向 Supabase Storage)。</td>
-  </tr>
-  <tr>
-    <td>is_onsale</td>
-    <td>BOOLEAN</td>
-    <td>上架/下架狀態 (上架: TRUE, 下架: FALSE)。</td>
-  </tr>
-  <tr>
-    <td>published_date</td>
-    <td>DATE</td>
-    <td>出版日期。</td>
   </tr>
   </tbody>
 </table>
