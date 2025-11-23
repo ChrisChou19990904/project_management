@@ -37,11 +37,12 @@
   <li><a href="#section5">帳號與權限架構（Role-Based Access Control, RBAC）</a></li>
   <li><a href="#section6">JWT 身分驗證流程（後端驗證方式）</a></li>
   <li><a href="#section7">管理員帳號的建立方式</a></li>
-  <li><a href="#section8">Figma 設計：註冊與登入頁（Wireframe）</a></li>
-  <li><a href="#section9">Spring Boot：註冊與登入 API 程式碼</a></li>
-  <li><a href="#section10">Vue 前端：登入後依角色導向</a></li>
-  <li><a href="#section11">Spring Security：後台 API 權限驗證</a></li>
-  <li><a href="#section12">本專案的權限安全結論</a></li>
+  <li><a href="#section8">Figma AI 原型與資料同步說明</a></li>
+  <li><a href="#section9">Figma 原型示範影片說明</a></li>
+  <li><a href="#section10">Spring Boot：註冊與登入 API 程式碼</a></li>
+  <li><a href="#section11">Vue 前端：登入後依角色導向</a></li>
+  <li><a href="#section12">Spring Security：後台 API 權限驗證</a></li>
+  <li><a href="#section13">本專案的權限安全結論</a></li>
 </ol>
 <h2 id="section1">一、 開發框架與技術棧 (Development Stack)</h2>
 <p>技術棧選用被定位為「單人開發最強組合」。</p>
@@ -500,11 +501,25 @@ WHERE email='admin@test.com';
 <p>
   總結：Figma AI 原型提供了高擬真視覺效果與操作流程，但資料不會自動寫入後端。真實資料同步仍需前端程式與後端 API 配合。
 </p>
-
 <hr>
+<h2 id="section9">九、Figma 原型示範影片說明</h2>
 
+<p>
+  為了展示會員註冊、登入、書籍瀏覽、購物車與結帳的操作流程，本專案將 Figma AI 生成的高擬真網頁畫面錄製成影片，上傳至 YouTube，並透過 <code>&lt;iframe&gt;</code> 嵌入到本 HTML 頁面。
+</p>
 
-<h2 id="section9">九、 Spring Boot：註冊與登入 API 程式碼</h2>
+<p><strong>注意事項：</strong></p>
+<ul>
+  <li>影片中操作的資料均為 <strong>模擬資料 / 死資料</strong>，不會實際寫入後端資料庫。</li>
+  <li>透過影片示範的購物車新增、送出訂單等互動效果，僅作為操作流程視覺演示。</li>
+  <li>後台管理介面顯示的資料仍是實際資料庫的內容，因此影片中新增的假資料不會出現在後台。</li>
+  <li>影片主要用途是展示操作流程、UI 介面與使用者互動，方便專案展示或報告使用。</li>
+</ul>
+
+<p><strong>嵌入影片範例：</strong></p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/uRSejsB72CA?si=SYSHCu-Y6KwDqU1A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<hr>
+<h2 id="section10">十、 Spring Boot：註冊與登入 API 程式碼</h2>
 
 <p>為了安全，後端強制所有註冊而來的帳號皆為 MEMBER。</p>
 
@@ -565,7 +580,7 @@ public ResponseEntity<?> login(@RequestBody LoginRequest req) {
 
 <hr>
 
-<h2 id="section10">十、 Vue 前端：登入後依角色導向</h2>
+<h2 id="section11">十一、 Vue 前端：登入後依角色導向</h2>
 
 <p>前端會接收 login API 回傳的 role。</p>
 
@@ -608,7 +623,7 @@ router.beforeEach((to, from, next) => {
 
 <hr>
 
-<h2 id="section11">十一、 Spring Security：後台 API 權限驗證</h2>
+<h2 id="section12">十二、 Spring Security：後台 API 權限驗證</h2>
 
 <p>後台 API 例如：</p>
 
@@ -638,7 +653,7 @@ http
 
 <hr>
 
-<h2 id="section12">十二、 本專案的權限安全結論</h2>
+<h2 id="section13">十三、 本專案的權限安全結論</h2>
 
 <ul>
   <li><strong>管理員不可用會員註冊方式產生 → 必須人工建立</strong></li>
