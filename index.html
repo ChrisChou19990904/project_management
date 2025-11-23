@@ -208,7 +208,99 @@
     <td>DATE</td>
     <td>出版日期。</td>
   </tr>
+  <!-- CART_ITEMS -->
+  <tr>
+    <td rowspan="5"><strong>cart_items</strong> (購物車明細)</td>
+    <td>cart_item_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>user_id</td>
+    <td>INTEGER (FK)</td>
+    <td>外鍵，連結 users.user_id。</td>
+  </tr>
+  <tr>
+    <td>book_id</td>
+    <td>INTEGER (FK)</td>
+    <td>外鍵，連結 books.book_id。</td>
+  </tr>
+  <tr>
+    <td>quantity</td>
+    <td>INTEGER</td>
+    <td>購買數量，必須 ≥ 1。</td>
+  </tr>
+  <tr>
+    <td>created_at</td>
+    <td>TIMESTAMP WITH TIME ZONE</td>
+    <td>加入購物車的時間戳。</td>
+  </tr>
 
+  <!-- ORDERS -->
+  <tr>
+    <td rowspan="6"><strong>orders</strong> (訂單主表)</td>
+    <td>order_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>user_id</td>
+    <td>INTEGER (FK)</td>
+    <td>外鍵，連結 users.user_id（該訂單屬於哪位會員）。</td>
+  </tr>
+  <tr>
+    <td>total_price</td>
+    <td>NUMERIC(10,2)</td>
+    <td>訂單總金額（結帳時計算）。</td>
+  </tr>
+  <tr>
+    <td>payment_method</td>
+    <td>VARCHAR(20)</td>
+    <td>付款方式：credit_card 或 cod（貨到付款）。</td>
+  </tr>
+  <tr>
+    <td>status</td>
+    <td>VARCHAR(20)</td>
+    <td>訂單狀態，如 pending / paid / shipped / done。</td>
+  </tr>
+  <tr>
+    <td>created_at</td>
+    <td>TIMESTAMP WITH TIME ZONE</td>
+    <td>下單時間，由系統自動生成。</td>
+  </tr>
+
+  <!-- ORDER_ITEMS -->
+  <tr>
+    <td rowspan="6"><strong>order_items</strong> (訂單商品明細)</td>
+    <td>order_item_id</td>
+    <td>SERIAL (PK)</td>
+    <td>主鍵，自動遞增。</td>
+  </tr>
+  <tr>
+    <td>order_id</td>
+    <td>INTEGER (FK)</td>
+    <td>外鍵，連結 orders.order_id。</td>
+  </tr>
+  <tr>
+    <td>book_id</td>
+    <td>INTEGER (FK)</td>
+    <td>外鍵，連結 books.book_id。</td>
+  </tr>
+  <tr>
+    <td>price</td>
+    <td>NUMERIC(10,2)</td>
+    <td>結帳當下的單價（避免之後書本漲價造成紀錄錯誤）。</td>
+  </tr>
+  <tr>
+    <td>quantity</td>
+    <td>INTEGER</td>
+    <td>購買數量。</td>
+  </tr>
+  <tr>
+    <td>subtotal</td>
+    <td>NUMERIC(10,2)</td>
+    <td>小計（price × quantity）。</td>
+  </tr>
   </tbody>
 </table>
 <hr>
