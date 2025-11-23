@@ -12,6 +12,7 @@
     th { background-color: #f2f2f2; color: #333; }
     .highlight { font-weight: bold; color: #d9534f; }
     .citation { font-size: 0.9em; color: #888; margin-top: 5px;}
+    a:visited { color: blue; }
   </style>
 </head>
 <body>
@@ -24,8 +25,22 @@
 </p>
 
 <hr>
-
-<h2>一、 開發框架與技術棧 (Development Stack)</h2>
+<h2>目錄</h2>
+<ol>
+  <li><a href="#section1">開發框架與技術棧 (Development Stack)</a></li>
+  <li><a href="#section2">詳細資料庫設計結構 (Supabase PostgreSQL)</a></li>
+  <li><a href="#section3">前台功能 (Frontend Features)</a></li>
+  <li><a href="#section4">後台管理功能 (Backend Admin Features)</a></li>
+  <li><a href="#section5">帳號與權限架構（Role-Based Access Control, RBAC）</a></li>
+  <li><a href="#section6">JWT 身分驗證流程（後端驗證方式）</a></li>
+  <li><a href="#section7">管理員帳號的建立方式</a></li>
+  <li><a href="#section8">Figma 設計：註冊與登入頁（Wireframe）</a></li>
+  <li><a href="#section9">Spring Boot：註冊與登入 API 程式碼</a></li>
+  <li><a href="#section10">Vue 前端：登入後依角色導向</a></li>
+  <li><a href="#section11">Spring Security：後台 API 權限驗證</a></li>
+  <li><a href="#section12">本專案的權限安全結論</a></li>
+</ol>
+<h2 id="section1">一、 開發框架與技術棧 (Development Stack)</h2>
 <p>技術棧選用被定位為「單人開發最強組合」。</p>
 
 <table>
@@ -56,7 +71,7 @@
 </table>
 
 <hr>
-<h2>三、 詳細資料庫設計結構 (Supabase PostgreSQL)</h2>
+<h2 id="section2">二、 詳細資料庫設計結構 (Supabase PostgreSQL)</h2>
 <p>所有表格的資料型態為建議值，以確保功能完整性。</p>
 
 <table>
@@ -192,7 +207,7 @@
   </tbody>
 </table>
 <hr>
-<h2>三、 前台功能 (Frontend Features)</h2>
+<h2 id="section3">三、 前台功能 (Frontend Features)</h2>
 
 <table>
   <thead>
@@ -231,7 +246,7 @@
 
 <hr>
 
-<h2>四、 後台管理功能 (Backend Admin Features)</h2>
+<h2 id="section4">四、 後台管理功能 (Backend Admin Features)</h2>
 <p>後台介面設計已包含「書本」、「訂單」、「會員」導航模組，所有操作需經 Spring Security + JWT Filter 驗證。</p>
 
 <table>
@@ -289,6 +304,402 @@
   </tr>
   </tbody>
 </table>
+<hr>
+
+<h2 id="section5">五、 帳號與權限架構（Role-Based Access Control, RBAC）</h2>
+
+<p>
+  本專案採用 <strong>RBAC 角色權限模型</strong>，將使用者區分為兩類：
+</p>
+
+<table>
+  <thead>
+  <tr>
+    <th>角色 (Role)</th>
+    <th>來源</th>
+    <th>能做的事</th>
+    <th>不能做的事</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><strong>MEMBER</strong>（一般會員）</td>
+    <td>使用「會員註冊」頁面註冊</td>
+    <td>
+      <ul>
+        <li>註冊 / 登入</li>
+        <li>搜尋書籍</li>
+        <li>加入購物車 / 結帳</li>
+        <li>更新個人資料</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>不能進入後台</li>
+        <li>不能新增 / 修改 / 刪除書籍</li>
+        <li>不能查看訂單總覽或管理會員</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><strong>ADMIN</strong>（管理員）</td>
+    <td>
+      <strong>不從前台註冊獲得</strong><br>
+      由開發者以以下方式建立：
+      <ul>
+        <li>資料庫 SQL 手動建立</li>
+        <li>Spring Boot 專案啟動時自動建立</li>
+        <li>Supabase Dashboard 新增後再改 role</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>登入後進入後台管理系統</li>
+        <li>新增 / 修改 / 下架書籍</li>
+        <li>查看與更新訂單</li>
+        <li>查看會員清單</li>
+      </ul>
+    </td>
+    <td>不能透過前台註冊（安全性）</td>
+  </tr>
+  </tbody>
+</table>
+
+<p>
+  📌 <strong>重點：</strong>管理員需透過登入流程取得 JWT，但不能透過註冊流程取得「ADMIN」。
+</p>
+
+<hr>
+
+<h2 id="section6">六、 JWT 身分驗證流程（後端驗證方式）</h2>
+
+<p>本專案以 <strong>Spring Boot 3 + JWT</strong> 作為登入與權限控制核心機制。</p>
+
+<h3>🔐 JWT 流程圖（精簡版）</h3>
+
+<table>
+  <tbody>
+  <tr>
+    <td>
+      <strong>1. 使用者登入</strong><br>
+      使用 email + 密碼 → 送到後端
+    </td>
+    <td>➡</td>
+    <td>
+      <strong>2. 後端比對密碼</strong><br>
+      驗證 Bcrypt 是否正確
+    </td>
+    <td>➡</td>
+    <td>
+      <strong>3. 後端產生 JWT</strong><br>
+      Token 內包含角色資訊：<br>
+      <code>{"sub": email, "role": "ADMIN"}</code>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="5" style="text-align:center;">⬇ 使用者攜帶 JWT 掛在 Authorization Header</td>
+  </tr>
+  <tr>
+    <td>
+      <strong>4. 前端呼叫 API</strong><br>
+      Header: <code>Authorization: Bearer xxx</code>
+    </td>
+    <td>➡</td>
+    <td>
+      <strong>5. JWT Filter 驗證 Token</strong>
+    </td>
+    <td>➡</td>
+    <td>
+      <strong>6. Spring Security 檢查角色</strong><br>
+      <ul>
+        <li>ADMIN → 可以進後台 API</li>
+        <li>MEMBER → 只能進前台 API</li>
+      </ul>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<p>
+  ✔ 這套流程能確保：<br>
+  <strong>一般會員無法偽造成管理員 → 安全可靠。</strong>
+</p>
+
+<hr>
+
+<h2 id="section7">七、 管理員帳號的建立方式</h2>
+
+<h3>方法 A：直接在 PostgreSQL 手動建立（推薦）</h3>
+
+<pre>
+INSERT INTO users (username, email, password_hash, role, is_active)
+VALUES ('admin', 'admin@test.com',
+        '$2a$10$XXXXXX',  -- bcrypt 加密後密碼
+        'ADMIN', TRUE);
+</pre>
+
+<h3>方法 B：Spring Boot 專案啟動時自動建立</h3>
+
+<pre>
+@Bean
+CommandLineRunner initAdmin(UserRepository repo, PasswordEncoder encoder) {
+    return args -> {
+        if (!repo.existsByEmail("admin@test.com")) {
+            User admin = new User();
+            admin.setUsername("admin");
+            admin.setEmail("admin@test.com");
+            admin.setPasswordHash(encoder.encode("admin123"));
+            admin.setRole("ADMIN");
+            repo.save(admin);
+        }
+    };
+}
+</pre>
+
+<h3>方法 C：Supabase Dashboard 手動新增</h3>
+
+<ol>
+  <li>Supabase → Authentication → Add User</li>
+  <li>新增 email / 密碼</li>
+  <li>進入 SQL Editor 執行：
+    <pre>
+UPDATE users SET role='ADMIN'
+WHERE email='admin@test.com';
+  </pre></li>
+</ol>
+
+<p>✔ 任何方法都比讓管理員透過前台註冊安全得多。</p>
+
+<hr>
+<hr>
+
+<h2 id="section8">八、 Figma 設計：註冊與登入頁（Wireframe）</h2>
+
+<p>
+  前端採用 Figma 製作 Wireframe。登入與註冊頁是所有會員流程的起點，因此設計需清楚、簡潔、可快速完成輸入。
+</p>
+
+<h3>1. 會員登入頁（Login Wireframe）</h3>
+
+<ul>
+  <li>Email 輸入框</li>
+  <li>密碼輸入框（隱藏顯示切換）</li>
+  <li>登入按鈕</li>
+  <li>導向「註冊帳號」的連結</li>
+</ul>
+
+<p><strong>流程：</strong></p>
+<ol>
+  <li>使用者輸入 Email + 密碼</li>
+  <li>按登入後 → 呼叫後端 /login</li>
+  <li>成功 → 從後端取得 JWT + 角色（role: MEMBER/ADMIN）</li>
+  <li>前端依據角色導向不同頁面</li>
+</ol>
+
+<h3>2. 會員註冊頁（Register Wireframe）</h3>
+
+<ul>
+  <li>使用者名稱（username）</li>
+  <li>Email</li>
+  <li>密碼</li>
+  <li>確認密碼</li>
+  <li>註冊按鈕</li>
+  <li>導向登入的連結</li>
+</ul>
+
+<p><strong>流程：</strong></p>
+<ol>
+  <li>使用者送出註冊資料</li>
+  <li>後端建立新帳戶，<strong>強制設為 MEMBER</strong></li>
+  <li>註冊成功 → 導向登入頁</li>
+</ol>
+
+<p>
+  ✔ Figma 中可以用 <strong>Frame + Auto Layout</strong> 快速創建以上 Wireframe。
+  ✔ 所有欄位建議搭配 placeholder（例如：Enter your email）。
+</p>
+<h3>【後端自動處理的欄位說明（不需進入 Figma 設計）】</h3>
+<p>
+  在本專案中，<strong>部分欄位由後端自動填入，不需要在 Figma 的註冊頁面中呈現或輸入。</strong>
+  這些欄位在會員註冊時後端會自動設定：
+</p>
+
+<ul>
+  <li><strong>role</strong>（預設：<code>MEMBER</code>）
+    所有使用者透過前台註冊時，後端會強制把角色設為 MEMBER。<br>
+    管理員帳號需由開發者在資料庫人工建立，或透過後台專用建立接口。
+  </li>
+
+  <li><strong>is_active</strong>（預設：<code>TRUE</code>）
+    代表帳號啟用狀態，註冊時後端會自動設定為 TRUE。
+    只有後台管理員可變更此值（例如停用可疑帳號）。
+  </li>
+
+  <li><strong>created_at</strong>（由資料庫 <code>NOW()</code> 自動產生）
+    使用 PostgreSQL 的自動時間戳功能，不需要登入或註冊頁面輸入。
+  </li>
+</ul>
+
+<p>
+  因此，在 Figma 的註冊畫面中，使用者只需要看到與輸入：
+</p>
+
+<ul>
+  <li>username（顯示名稱）</li>
+  <li>email</li>
+  <li>password + confirm password</li>
+</ul>
+
+<p>其他欄位完全由後端與資料庫自動處理，確保安全性與一致性。</p>
+
+<hr>
+
+<h2 id="section9">九、 Spring Boot：註冊與登入 API 程式碼</h2>
+
+<p>為了安全，後端強制所有註冊而來的帳號皆為 MEMBER。</p>
+
+<h3>1. 註冊 API（Register）</h3>
+
+<pre>
+@PostMapping("/register")
+public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
+
+    if (userRepo.existsByEmail(req.getEmail())) {
+        return ResponseEntity.badRequest().body("Email 已存在");
+    }
+
+    User user = new User();
+    user.setUsername(req.getUsername());
+    user.setEmail(req.getEmail());
+    user.setPasswordHash(encoder.encode(req.getPassword()));
+
+    // 強制所有前台註冊者角色為 MEMBER
+    user.setRole("MEMBER");
+
+    userRepo.save(user);
+
+    return ResponseEntity.ok("註冊成功");
+}
+</pre>
+
+<h3>2. 登入 API（Login）</h3>
+
+<pre>
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+
+    User user = userRepo.findByEmail(req.getEmail())
+            .orElseThrow(() -> new RuntimeException("帳號不存在"));
+
+    if (!encoder.matches(req.getPassword(), user.getPasswordHash())) {
+        return ResponseEntity.badRequest().body("密碼錯誤");
+    }
+
+    String token = jwtService.generateToken(user);
+
+    return ResponseEntity.ok(new LoginResponse(token, user.getRole()));
+}
+</pre>
+
+<h3>3. JWT 內容示例</h3>
+
+<pre>
+{
+  "sub": "admin@test.com",
+  "role": "ADMIN",
+  "exp": 1712345678
+}
+</pre>
+
+<p>✔ JWT 內包含使用者角色，可用於前端判斷導向頁面。</p>
+
+<hr>
+
+<h2 id="section10">十、 Vue 前端：登入後依角色導向</h2>
+
+<p>前端會接收 login API 回傳的 role。</p>
+
+<h3>登入方法：</h3>
+
+<pre>
+axios.post('/login', { email, password })
+  .then(res => {
+    const token = res.data.token;
+    const role = res.data.role;
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('role', role);
+
+    if (role === "ADMIN") {
+        router.push('/admin');
+    } else {
+        router.push('/');
+    }
+  });
+</pre>
+
+<h3>前端路由保護（middleware）</h3>
+
+<pre>
+router.beforeEach((to, from, next) => {
+  const role = localStorage.getItem('role');
+  const token = localStorage.getItem('token');
+
+  if (to.meta.requiresAdmin) {
+    if (token && role === "ADMIN") next();
+    else next('/login');
+  } else {
+    next();
+  }
+});
+</pre>
+
+<p>✔ 能確保一般會員無法直接進入後台 URL。</p>
+
+<hr>
+
+<h2 id="section11">十一、 Spring Security：後台 API 權限驗證</h2>
+
+<p>後台 API 例如：</p>
+
+<ul>
+  <li>新增書籍：POST /admin/books</li>
+  <li>修改書籍：PUT /admin/books/{id}</li>
+  <li>查看全部訂單：GET /admin/orders</li>
+</ul>
+
+<h3>Security 配置：</h3>
+
+<pre>
+http
+  .authorizeHttpRequests(auth -> auth
+      .requestMatchers("/admin/**").hasRole("ADMIN")
+      .requestMatchers("/user/**").hasAnyRole("MEMBER", "ADMIN")
+      .requestMatchers("/public/**", "/login", "/register").permitAll()
+      .anyRequest().authenticated()
+  )
+  .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+</pre>
+
+<p>
+  ✔ 只要 JWT 中角色不是 ADMIN，就無法進入 <code>/admin/**</code> API。
+  ✔ 這是後端最重要的安全保障。
+</p>
+
+<hr>
+
+<h2 id="section12">十二、 本專案的權限安全結論</h2>
+
+<ul>
+  <li><strong>管理員不可用會員註冊方式產生 → 必須人工建立</strong></li>
+  <li>登入後依角色產生不同權限</li>
+  <li>前端依據 role 導向不同介面</li>
+  <li>後端以 JWT + Spring Security 作強制驗證</li>
+</ul>
+
+<p>
+  🔒 <strong>確保網站前台與後台完全分離、安全、可靠。</strong>
+</p>
 
 </body>
 </html>
