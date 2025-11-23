@@ -476,86 +476,32 @@ WHERE email='admin@test.com';
 <hr>
 <hr>
 
-<h2 id="section8">八、 Figma 設計：註冊與登入頁（Wireframe）</h2>
+
+<h2 id="section8">八、Figma AI 原型與資料同步說明</h2>
 
 <p>
-  前端採用 Figma 製作 Wireframe。登入與註冊頁是所有會員流程的起點，因此設計需清楚、簡潔、可快速完成輸入。
+  前端畫面部分透過 <strong>Figma AI</strong> 生成高擬真網頁畫面，包括會員登入/註冊、書籍瀏覽、購物車與結帳等功能。
 </p>
 
-<h3>1. 會員登入頁（Login Wireframe）</h3>
-
+<p><strong>注意事項：</strong></p>
 <ul>
-  <li>Email 輸入框</li>
-  <li>密碼輸入框（隱藏顯示切換）</li>
-  <li>登入按鈕</li>
-  <li>導向「註冊帳號」的連結</li>
-</ul>
-
-<p><strong>流程：</strong></p>
-<ol>
-  <li>使用者輸入 Email + 密碼</li>
-  <li>按登入後 → 呼叫後端 /login</li>
-  <li>成功 → 從後端取得 JWT + 角色（role: MEMBER/ADMIN）</li>
-  <li>前端依據角色導向不同頁面</li>
-</ol>
-
-<h3>2. 會員註冊頁（Register Wireframe）</h3>
-
-<ul>
-  <li>使用者名稱（username）</li>
-  <li>Email</li>
-  <li>密碼</li>
-  <li>確認密碼</li>
-  <li>註冊按鈕</li>
-  <li>導向登入的連結</li>
-</ul>
-
-<p><strong>流程：</strong></p>
-<ol>
-  <li>使用者送出註冊資料</li>
-  <li>後端建立新帳戶，<strong>強制設為 MEMBER</strong></li>
-  <li>註冊成功 → 導向登入頁</li>
-</ol>
-
-<p>
-  ✔ Figma 中可以用 <strong>Frame + Auto Layout</strong> 快速創建以上 Wireframe。
-  ✔ 所有欄位建議搭配 placeholder（例如：Enter your email）。
-</p>
-<h3>【後端自動處理的欄位說明（不需進入 Figma 設計）】</h3>
-<p>
-  在本專案中，<strong>部分欄位由後端自動填入，不需要在 Figma 的註冊頁面中呈現或輸入。</strong>
-  這些欄位在會員註冊時後端會自動設定：
-</p>
-
-<ul>
-  <li><strong>role</strong>（預設：<code>MEMBER</code>）
-    所有使用者透過前台註冊時，後端會強制把角色設為 MEMBER。<br>
-    管理員帳號需由開發者在資料庫人工建立，或透過後台專用建立接口。
+  <li>Figma 原型中的資料為 <strong>死資料 / 模擬資料</strong>，不會實際存入資料庫。</li>
+  <li>你在錄影或 Figma 原型中操作的「加入購物車」或「送出訂單」效果，僅是視覺互動模擬，並不會影響後台資料。</li>
+  <li>後台管理介面顯示的是 <strong>真實資料庫</strong> (Supabase PostgreSQL) 的內容，因此你不會在後台看到原型中新增的假資料。</li>
+  <li>前端真實功能需要程式碼串接後端 API 才能讓資料同步到後台，例如：
+    <ul>
+      <li>會員操作 → 呼叫 /api/login 或 /api/register</li>
+      <li>購物車 / 訂單 → 呼叫 /api/cart、/api/order</li>
+    </ul>
   </li>
-
-  <li><strong>is_active</strong>（預設：<code>TRUE</code>）
-    代表帳號啟用狀態，註冊時後端會自動設定為 TRUE。
-    只有後台管理員可變更此值（例如停用可疑帳號）。
-  </li>
-
-  <li><strong>created_at</strong>（由資料庫 <code>NOW()</code> 自動產生）
-    使用 PostgreSQL 的自動時間戳功能，不需要登入或註冊頁面輸入。
-  </li>
+  <li>在專案展示或報告中，可將 Figma 錄影作為「功能演示」使用，但需註明資料為模擬，避免混淆。</li>
 </ul>
 
 <p>
-  因此，在 Figma 的註冊畫面中，使用者只需要看到與輸入：
+  總結：Figma AI 原型提供了高擬真視覺效果與操作流程，但資料不會自動寫入後端。真實資料同步仍需前端程式與後端 API 配合。
 </p>
-
-<ul>
-  <li>username（顯示名稱）</li>
-  <li>email</li>
-  <li>password + confirm password</li>
-</ul>
-
-<p>其他欄位完全由後端與資料庫自動處理，確保安全性與一致性。</p>
-
 <hr>
+
 
 <h2 id="section9">九、 Spring Boot：註冊與登入 API 程式碼</h2>
 
